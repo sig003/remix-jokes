@@ -11,7 +11,7 @@ function validateJokeContent(content: string) {
 }
 
 function validateJokeName(name: string) {
-	if (name.length < 10) {
+	if (name.length < 3) {
 		return `That joke's name is too short`;
 	}
 }
@@ -77,10 +77,19 @@ export default function NewJokeRoute() {
 								undefined
 							}
 							aria-errormessage={
-								actionData?.fieldErrors?.name ? "name=error" : undefined
+								actionData?.fieldErrors?.name ? "name-error" : undefined
 							}
 						/>
 					</label>
+					{actionData?.fieldErrors?.name ? (
+						<p
+						className="form-validation-error"
+						role="alert"
+						id="name-error"
+						>
+						{actionData.fieldErrors.name}
+						</p>
+					) : null}
 				</div>
 				<div>
 					<label>
