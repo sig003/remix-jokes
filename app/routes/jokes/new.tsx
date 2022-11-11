@@ -28,9 +28,7 @@ type ActionData = {
 	};
 };
 
-const badRequest = (data: ActionData) => {
-	json(data, { status: 400});
-}
+const badRequest = (data: ActionData) => json(data, { status: 400});
 
 export const action: ActionFunction = async ({
 	request,
@@ -82,13 +80,13 @@ export default function NewJokeRoute() {
 						/>
 					</label>
 					{actionData?.fieldErrors?.name ? (
-						<p
+					<p
 						className="form-validation-error"
 						role="alert"
 						id="name-error"
-						>
+					>
 						{actionData.fieldErrors.name}
-						</p>
+					</p>
 					) : null}
 				</div>
 				<div>
@@ -107,27 +105,27 @@ export default function NewJokeRoute() {
 						/>
 					</label>
 					{actionData?.fieldErrors?.content ? (
-						<p
+					<p
 						className="form-validation-error"
 						role="alert"
 						id="content-error"
-						>
+					>
 						{actionData.fieldErrors.content}
-						</p>
+					</p>
 					) : null}
 				</div>
 				<div>
-				{actionData?.formError ? (
+					{actionData?.formError ? (
 					<p
-					className="form-validation-error"
-					role="alert"
+						className="form-validation-error"
+						role="alert"
 					>
-					{actionData.formError}
+						{actionData.formError}
 					</p>
-				) : null}
+					) : null}
 					<button type="submit" className="button">
 						Add
-			</button>
+					</button>
 				</div>
 			</form>
 		</div>
