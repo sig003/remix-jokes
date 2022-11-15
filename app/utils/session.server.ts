@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { createCookieSessionStorage, redirect, } from "@remix-run/node";
+import { createCookieSessionStorage, redirect, unstable_parseMultipartFormData, } from "@remix-run/node";
 
 import { db } from "./db.server";
 
@@ -16,17 +16,17 @@ export async function login({
 		where: { username },
 	});
 	if (!user) return null;
-	const isCorretcPassword = await bcrypt.compare({
+	const isCorretcPassword = await bcrypt.compare(
 		password,
 		user.passwordHash
-	});
+	);
 	if (!isCorretcPassword) return null;
 	return { id: user.id, username };
 }
 
-const sessionSecret = process.env.SESSION_SECRET;
+const sessionSecret = 'sdfsdfsdf';//process.env.SESSION_SECRET;
 if (!sessionSecret) {
-	throw new Error("SESSION_SECRET nust ne set");
+	throw new Error("SESSION_SECRET must be set");
 }
 
 const storage = createCookieSessionStorage({
@@ -63,6 +63,32 @@ export async function requireUserId(
 		throw redirect(`/login?${searchParams}`);
 	}
 	return userId;
+}
+
+export async function getUser(request: Request) {
+	const userId = await getUserId(request);
+	if (typeof userId !== "string") {
+		return null;
+	}
+
+	try {
+		const user = await db.user.findUnique({
+			where: { id: userId },
+			select: { id: true, username: true },
+		});
+		return user;
+	} catch {
+		throw logout(request);
+	}
+}
+
+export async function logout(request: Request) {
+	const session = await getUserSession(request);
+	return redirect("/login", {
+		headers: {
+			"Set-Cookie": await storage.destroySession(session),
+		},
+	});
 }
 
 export async function createUserSession(
