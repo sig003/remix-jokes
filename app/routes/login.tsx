@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { useActionData, Link, useSearchParams } from "@remix-run/react";
 
 import { db } from "~/utils/db.server";
-import { login, createUserSession } from "~/utils/session.server";
+import { login, createUserSession, resigter, register, } from "~/utils/session.server";
 import stylesUrl from "../styles/login.css";
 
 export const links: LinksFunction = () => {
@@ -93,10 +93,13 @@ export const action: ActionFunction = async ({
           formError: `User with username ${username} already exists`,
         });
       }
-      return badRequest({
-        fields,
-        formError: "Not implemented",
-      });
+      const user = await register({ username, password });
+      if (!user) {
+        return badRequest({
+          fields,
+          formError: `Something went wrong trying to create a new user.`,
+        });
+      }
     }
     default: {
       return badRequest({
