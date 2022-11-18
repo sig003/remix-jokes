@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useCatch, useParams, } from "@remix-run/react";
 import type { Joke } from "@prisma/client";
@@ -6,7 +6,22 @@ import type { Joke } from "@prisma/client";
 import { db } from "~/utils/db.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
-type LoaderData = { 
+export const meta: MetaFunction = ({
+  data,
+}) => {
+  if (!data) {
+    return {
+      title: "No joke",
+      description: "No joke found",
+    };
+  }
+  return {
+    title: `"${data.joke.name}" joke`,
+    description: `Enjoy the "${data.joke.name}" joke and much more`,
+  };
+};
+
+type LoaderData = {
   joke: Joke;
   isOwner: boolean
 };
@@ -23,7 +38,7 @@ export const loader: LoaderFunction = async ({
       status: 404,
     });
   }
-  const data: LoaderData = { 
+  const data: LoaderData = {
     joke,
     isOwner: userId === joke.jokesterId,
   };
@@ -64,12 +79,12 @@ export const action: ActionFunction = async ({
 
 export default function JokeRoute() {
   const data = useLoaderData<LoaderData>();
-    return (
-      <div>
-        <p>Here's your hilarious joke:</p>
-        <p>{data.joke.content}</p>
-        <Link to=".">{data.joke.name} Permalink</Link>
-        {data.isOwner ? (
+  return (
+    <div>
+      <p>Here's your hilarious joke:</p>
+      <p>{data.joke.content}</p>
+      <Link to=".">{data.joke.name} Permalink</Link>
+      {data.isOwner ? (
         <form method="post">
           <input
             type="hidden"
@@ -81,8 +96,8 @@ export default function JokeRoute() {
           </button>
         </form>
       ) : null}
-      </div>
-    );
+    </div>
+  );
 }
 
 export function CatchBoundary() {
