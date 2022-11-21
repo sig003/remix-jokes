@@ -1,7 +1,13 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useCatch,
-	Link, } from "@remix-run/react";
+import { 
+	useActionData, 
+	useCatch,
+	Link,
+	useTransition,
+} from "@remix-run/react";
+
+import { JokeDisplay } from "~/components/joke";
 
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
@@ -74,6 +80,21 @@ export const action: ActionFunction = async ({
 
 export default function NewJokeRoute() {
 	const actionData = useActionData<ActionData>();
+	const transition = useTransition();
+
+	if (transition.submission) {
+		const name = transition.submission.formData.get("name");
+		const content = transition.submission.formData.get("content");
+		if (typeof name === "string" && typeof content === "string" && !validateJokeContent(content) && !validateJokeName(name)) {
+			return (
+				<JokeDisplay
+					joke={{ name, content }}
+					isOwner={true}
+					canDelete={false}
+				/>
+			);
+		}
+	}
 	return (
 		<div>
 			<p>Add your own hilarious joke</p>
